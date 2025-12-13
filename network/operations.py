@@ -1,12 +1,12 @@
 import torch
-import faiss
+# import faiss
 import numpy as np
 from threading import Thread
 
 import sampling
 
-if torch.cuda.is_available():
-    from faiss_setup import GPU_RES
+# if torch.cuda.is_available():
+#     from faiss_setup import GPU_RES
 
 
 def normalize_point_batch(pc, NCHW=True):
@@ -30,16 +30,16 @@ def normalize_point_batch(pc, NCHW=True):
     return pc, centroid, furthest_distance
 
 
-def __swig_ptr_from_FloatTensor(x):
-    assert x.is_contiguous()
-    assert x.dtype == torch.float32
-    return faiss.cast_integer_to_float_ptr(x.storage().data_ptr())
+# def __swig_ptr_from_FloatTensor(x):
+#     assert x.is_contiguous()
+#     assert x.dtype == torch.float32
+#     return faiss.cast_integer_to_float_ptr(x.storage().data_ptr())
 
 
-def __swig_ptr_from_LongTensor(x):
-    assert x.is_contiguous()
-    assert x.dtype == torch.int64, 'dtype=%s' % x.dtype
-    return faiss.cast_integer_to_long_ptr(x.storage().data_ptr())
+# def __swig_ptr_from_LongTensor(x):
+#     assert x.is_contiguous()
+#     assert x.dtype == torch.int64, 'dtype=%s' % x.dtype
+#     return faiss.cast_integer_to_long_ptr(x.storage().data_ptr())
 
 
 def search_index_pytorch(database, x, k):
@@ -52,29 +52,15 @@ def search_index_pytorch(database, x, k):
         D BxMxK
         I BxMxK
     """
-    Dptr = database.storage().data_ptr()
-    if not (x.is_cuda or database.is_cuda):
-        index = faiss.IndexFlatL2(database.size(-1))
-    else:
-        index = faiss.GpuIndexFlatL2(
-            GPU_RES, database.size(-1))  # dimension is 3
-    index.add_c(database.size(0), faiss.cast_integer_to_float_ptr(Dptr))
+    B, N, C = database.shape
+    _, M, _ = x.shape
 
-    assert x.is_contiguous()
-    n, d = x.size()
-    assert d == index.d
+    # (B, M, N)
+    dist = torch.cdist(x, database)
 
-    D = torch.empty((n, k), dtype=torch.float32, device=x.device)
-    I = torch.empty((n, k), dtype=torch.int64, device=x.device)
+    # (B, M, K)
+    D, I = dist.topk(k, dim=2, largest=False)
 
-    torch.cuda.synchronize()
-    xptr = __swig_ptr_from_FloatTensor(x)
-    Iptr = __swig_ptr_from_LongTensor(I)
-    Dptr = __swig_ptr_from_FloatTensor(D)
-    index.search_c(n, xptr,
-                   k, Dptr, Iptr)
-    torch.cuda.synchronize()
-    index.reset()
     return D, I
 
 
@@ -95,7 +81,6 @@ class KNN(torch.autograd.Function):
         distance_batch = []
         for i in range(points.shape[0]):
             D_var, I_var = search_index_pytorch(points[i], query[i], k)
-            GPU_RES.syncDefaultStreamCurrentDevice()
             index_batch.append(I_var)  # M, k
             distance_batch.append(D_var)  # M, k
 
