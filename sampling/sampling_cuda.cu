@@ -307,9 +307,8 @@ __global__ void query_ball_point_kernel(int b, int n, int m, float radius,
 at::Tensor ball_query_cuda_forward(int b, int n, int m, float radius,
                                      int nsample, at::Tensor query,
                                      at::Tensor xyz, at::Tensor idx) {
-  cudaStream_t stream = at::cuda::getCurrentCUDAStream();
   AT_DISPATCH_FLOATING_TYPES(xyz.type(), "query_ball_point_kernel", ([&]() {
-    query_ball_point_kernel<<<b, opt_n_threads(m), 0, stream>>>(b, n, m, radius, nsample, 
+    query_ball_point_kernel<<<b, opt_n_threads(m), 0>>>(b, n, m, radius, nsample, 
       query.data<scalar_t>(), xyz.data<scalar_t>(), idx.data<int32_t>());
 		  }));
   CUDA_CHECK_ERRORS();

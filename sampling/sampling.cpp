@@ -17,8 +17,8 @@ at::Tensor gather_points_cuda_backward(int b, int c, int n, int npoints,
                                        at::Tensor grad_out, at::Tensor idx, at::Tensor grad_points);
 
 // C++ interface
-#define CHECK_CUDA(x) AT_ASSERTM(x.type().is_cuda(), #x " must be a CUDA tensor")
-#define CHECK_CONTIGUOUS(x) AT_ASSERTM(x.is_contiguous(), #x " must be contiguous")
+#define CHECK_CUDA(x) TORCH_CHECK(x.is_cuda(), #x " must be a CUDA tensor")
+#define CHECK_CONTIGUOUS(x) TORCH_CHECK(x.is_contiguous(), #x " must be contiguous")
 #define CHECK_INPUT(x) \
   CHECK_CUDA(x);       \
   CHECK_CONTIGUOUS(x)
@@ -66,7 +66,7 @@ at::Tensor ball_query_forward(at::Tensor query, at::Tensor xyz, const float radi
       torch::zeros({query.size(0), query.size(1), nsample},
                    at::device(query.device()).dtype(at::ScalarType::Int));
 
-  if (query.type().is_cuda())
+  if (query.is_cuda())
   {
     ball_query_cuda_forward(xyz.size(0), xyz.size(1), query.size(1),
                             radius, nsample, query,
@@ -74,7 +74,7 @@ at::Tensor ball_query_forward(at::Tensor query, at::Tensor xyz, const float radi
   }
   else
   {
-    AT_CHECK(false, "CPU not supported");
+    TORCH_CHECK(false, "CPU not supported");
   }
 
   return idx;
