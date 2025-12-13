@@ -45,12 +45,12 @@ at::Tensor gather_points_cuda_forward(int b, int c, int n, int npoints,
                   at::Tensor out) {
 
     cudaError_t err;
-    AT_DISPATCH_FLOATING_TYPES_AND_HALF(points.type(), "gather_points_cuda_forward", ([&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_HALF(points.scalar_type(), "gather_points_cuda_forward", ([&] {
             gather_points_forward_kernel<scalar_t><<<dim3(b, c, 1), opt_n_threads(npoints)>>>(
             b, c, n, npoints,
-            points.data<scalar_t>(),
-            idx.data<int32_t>(),
-            out.data<scalar_t>());
+            points.data_ptr<scalar_t>(),
+            idx.data_ptr<int32_t>(),
+            out.data_ptr<scalar_t>());
         }));
 
     err = cudaGetLastError();
@@ -83,12 +83,12 @@ __global__ void gather_points_backward_kernel(int b, int c, int n, int m,
 at::Tensor gather_points_cuda_backward(int b, int c, int n, int npoints,
                        at::Tensor grad_out, at::Tensor idx, at::Tensor grad_points) {
     cudaError_t err;
-    AT_DISPATCH_FLOATING_TYPES_AND_HALF(grad_out.type(), "gather_points_cuda_backward", ([&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_HALF(grad_out.scalar_type(), "gather_points_cuda_backward", ([&] {
         gather_points_backward_kernel<scalar_t><<<dim3(b, c, 1), opt_n_threads(npoints)>>>(
             b, c, n, npoints,
-            grad_out.data<scalar_t>(),
-            idx.data<int32_t>(),
-            grad_points.data<scalar_t>());
+            grad_out.data_ptr<scalar_t>(),
+            idx.data_ptr<int32_t>(),
+            grad_points.data_ptr<scalar_t>());
       }));
 
     err = cudaGetLastError();
@@ -307,9 +307,9 @@ __global__ void query_ball_point_kernel(int b, int n, int m, float radius,
 at::Tensor ball_query_cuda_forward(int b, int n, int m, float radius,
                                      int nsample, at::Tensor query,
                                      at::Tensor xyz, at::Tensor idx) {
-  AT_DISPATCH_FLOATING_TYPES(xyz.type(), "query_ball_point_kernel", ([&]() {
+  AT_DISPATCH_FLOATING_TYPES(xyz.scalar_type(), "query_ball_point_kernel", ([&]() {
     query_ball_point_kernel<<<b, opt_n_threads(m), 0>>>(b, n, m, radius, nsample, 
-      query.data<scalar_t>(), xyz.data<scalar_t>(), idx.data<int32_t>());
+      query.data_ptr<scalar_t>(), xyz.data_ptr<scalar_t>(), idx.data_ptr<int32_t>());
 		  }));
   CUDA_CHECK_ERRORS();
   return idx;
