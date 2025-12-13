@@ -181,79 +181,79 @@ at::Tensor furthest_sampling_cuda_forward(int b, int n, int m,
     switch (n_threads) {
       case 512:
       furthest_point_sampling_forward_kernel<512><<<n_blocks, n_threads>>>(
-          b, n, m, input.data<float>(),
-          temp.data<float>(),
-          idx.data<int32_t>());
+          b, n, m, input.data_ptr<float>(),
+          temp.data_ptr<float>(),
+          idx.data_ptr<int32_t>());
       break;
       case 256:
       furthest_point_sampling_forward_kernel<256><<<n_blocks, n_threads>>>(
           b, n, m,
-          input.data<float>(),
-          temp.data<float>(),
-          idx.data<int32_t>());
+          input.data_ptr<float>(),
+          temp.data_ptr<float>(),
+          idx.data_ptr<int32_t>());
       break;
       case 128:
       furthest_point_sampling_forward_kernel<128><<<n_blocks, n_threads>>>(
           b, n, m,
-          input.data<float>(),
-          temp.data<float>(),
-          idx.data<int32_t>());
+          input.data_ptr<float>(),
+          temp.data_ptr<float>(),
+          idx.data_ptr<int32_t>());
       break;
       case 64:
       furthest_point_sampling_forward_kernel<64><<<n_blocks, n_threads>>>(
           b, n, m,
-          input.data<float>(),
-          temp.data<float>(),
-          idx.data<int32_t>());
+          input.data_ptr<float>(),
+          temp.data_ptr<float>(),
+          idx.data_ptr<int32_t>());
       break;
       case 32:
       furthest_point_sampling_forward_kernel<32><<<n_blocks, n_threads>>>(
           b, n, m,
-          input.data<float>(),
-          temp.data<float>(),
-          idx.data<int32_t>());
+          input.data_ptr<float>(),
+          temp.data_ptr<float>(),
+          idx.data_ptr<int32_t>());
       break;
       case 16:
       furthest_point_sampling_forward_kernel<16><<<n_blocks, n_threads>>>(
           b, n, m,
-          input.data<float>(),
-          temp.data<float>(),
-          idx.data<int32_t>());
+          input.data_ptr<float>(),
+          temp.data_ptr<float>(),
+          idx.data_ptr<int32_t>());
       break;
       case 8:
       furthest_point_sampling_forward_kernel<8><<<n_blocks, n_threads>>>(
           b, n, m,
-          input.data<float>(),
-          temp.data<float>(),
-          idx.data<int32_t>());
+          input.data_ptr<float>(),
+          temp.data_ptr<float>(),
+          idx.data_ptr<int32_t>());
       break;
       case 4:
       furthest_point_sampling_forward_kernel<4><<<n_blocks, n_threads>>>(
           b, n, m,
-          input.data<float>(),
-          temp.data<float>(),
-          idx.data<int32_t>());
+          input.data_ptr<float>(),
+          temp.data_ptr<float>(),
+          idx.data_ptr<int32_t>());
       break;
       case 2:
       furthest_point_sampling_forward_kernel<2><<<n_blocks, n_threads>>>(
           b, n, m,
-          input.data<float>(),
-          temp.data<float>(),
-          idx.data<int32_t>());
+          input.data_ptr<float>(),
+          temp.data_ptr<float>(),
+          idx.data_ptr<int32_t>());
       break;
       case 1:
       furthest_point_sampling_forward_kernel<1><<<n_blocks, n_threads>>>(
           b, n, m,
-          input.data<float>(),
-          temp.data<float>(),
-          idx.data<int32_t>());
+          input.data_ptr<float>(),
+          temp.data_ptr<float>(),
+          idx.data_ptr<int32_t>());
       break;
       default:
       furthest_point_sampling_forward_kernel<512><<<n_blocks, n_threads>>>(
           b, n, m,
-          input.data<float>(),
-          temp.data<float>(),
-          idx.data<int32_t>());
+          input.data_ptr<float>(),
+          temp.data_ptr<float>(),
+          idx.data_ptr<int32_t>());
       }
 
     cudaError_t err = cudaGetLastError();
