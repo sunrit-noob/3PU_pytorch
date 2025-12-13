@@ -77,16 +77,11 @@ class KNN(torch.autograd.Function):
         """
         # selected_gt: BxkxCxM
         # process each batch independently.
-        index_batch = []
-        distance_batch = []
-        for i in range(points.shape[0]):
-            D_var, I_var = search_index_pytorch(points[i], query[i], k)
-            index_batch.append(I_var)  # M, k
-            distance_batch.append(D_var)  # M, k
+        dist = torch.cdist(query, points)          # B x M x N
+        distance_batch, index_batch = dist.topk(
+            k, dim=2, largest=False
+        )
 
-        # B, M, K
-        index_batch = torch.stack(index_batch, dim=0)
-        distance_batch = torch.stack(distance_batch, dim=0)
         ctx.mark_non_differentiable(index_batch, distance_batch)
         return index_batch, distance_batch
 
