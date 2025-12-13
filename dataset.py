@@ -83,8 +83,17 @@ class H5Dataset(data.Dataset):
 
         f = h5py.File(h5_filepath, "r")
         tag = re.findall("_([A-Za-z]+)_", os.path.basename(h5_filepath))[-1]
+        names = f["name"][:] 
+        names = np.array([
+                            name.decode("utf-8").split('/')[-1].split('.')[0] 
+                            for name in names
+                            ])
+        pcs   = f["poisson_4096"][:]
+        indices = np.argsort(names)[::100]
+        for name in names[indices]:
+            print(name)
 
-        data = f['poisson_4096'][:, :, 0:3]
+        data = pcs[indices, :, 0:3]
         sample_idx = utils.nonuniform_sampling(data.shape[1], sample_num=self.num_shape_point)
         data = data[:, sample_idx, :]
         logger.info("input point_num %d" % data.shape[1])
@@ -103,7 +112,7 @@ class H5Dataset(data.Dataset):
             # closest_larger_equal = num_points[np.searchsorted(
             #     num_points, num_in_point*r)]
             
-            label["x%d" % r] = f['poisson_4096'][:, :, :3]
+            label["x%d" % r] = pcs[indices, :, 0:3]
             sample_idx = utils.nonuniform_sampling(label["x%d" % r].shape[1], sample_num=new_num)
             label["x%d" % r] = label["x%d" % r][:, sample_idx, :]
             label["x%d" % r][:, :, 0:3] = label["x%d" %
