@@ -14,7 +14,9 @@ from model import Model
 from network import operations
 from utils import pc_utils, pytorch_utils
 from misc import logger
-from data import H5Dataset
+# from data import H5Dataset
+from dataset import H5Dataset
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--phase', default='test',
@@ -130,11 +132,12 @@ def train():
     model = Model(net, "train", FLAGS)
     # data loader
     if TRAIN_H5 is not None:
-        from data import H5Dataset
+        from dataset import H5Dataset
         dataset = H5Dataset(
             h5_path=TRAIN_H5,
             num_shape_point=NUM_SHAPE_POINT, num_patch_point=NUM_POINT,
             batch_size=BATCH_SIZE, up_ratio=UP_RATIO, step_ratio=STEP_RATIO)
+        # dataset = PUNET_Dataset(h5_file_path=TRAIN_H5)
         dataloader = data.DataLoader(
             dataset, batch_size=1, pin_memory=True, num_workers=4)
 
@@ -157,9 +160,9 @@ def train():
     dataloader = data.DataLoader(dataset, batch_size=1, pin_memory=True)
 
     # visualization
-    vis_logger = visdom.Visdom(env=FLAGS.id)
+    # vis_logger = visdom.Visdom(env=FLAGS.id)
     for epoch in range(start_epoch + 1, MAX_EPOCH):
-        for i, examples in enumerate(dataloader):
+        for examples in tqdm(dataloader):
             input_pc, label_pc, ratio = examples
             ratio = ratio.item()
             # 1xBx3xN
@@ -184,21 +187,21 @@ def train():
                 output = model.predicted.transpose(2, 1)[0].cpu()
                 gt = model.gt.transpose(2, 1)[0].cpu()
                 input_pc = input_pc.transpose(2, 1)[0].cpu()
-                vis_logger.scatter(input_pc, win="x{}_input".format(ratio),
-                                   opts=dict(title="x{}_input".format(ratio),
-                                             markersize=2))
-                vis_logger.scatter(output, win="x{}_output".format(ratio),
-                                   opts=dict(title="x{}_output".format(ratio),
-                                             markersize=2))
-                vis_logger.scatter(gt, win="x{}_gt".format(ratio),
-                                   opts=dict(title="x{}_label".format(ratio),
-                                             markersize=2))
-                vis_logger.line(
-                    np.array([model.error_log["cd_loss_x{}".format(ratio)]]),
-                    np.array([model.step]),
-                    update="append",
-                    win="x{}_loss".format(ratio),
-                    opts=dict(title="x{}_loss".format(ratio)))
+                # vis_logger.scatter(input_pc, win="x{}_input".format(ratio),
+                #                    opts=dict(title="x{}_input".format(ratio),
+                #                              markersize=2))
+                # vis_logger.scatter(output, win="x{}_output".format(ratio),
+                #                    opts=dict(title="x{}_output".format(ratio),
+                #                              markersize=2))
+                # vis_logger.scatter(gt, win="x{}_gt".format(ratio),
+                #                    opts=dict(title="x{}_label".format(ratio),
+                #                              markersize=2))
+                # vis_logger.line(
+                #     np.array([model.error_log["cd_loss_x{}".format(ratio)]]),
+                #     np.array([model.step]),
+                #     update="append",
+                #     win="x{}_loss".format(ratio),
+                #     opts=dict(title="x{}_loss".format(ratio)))
 
             stage, progress = new_stage, new_progress
 
