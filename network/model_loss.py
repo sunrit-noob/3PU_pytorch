@@ -19,8 +19,8 @@ class NmDistanceFunction(torch.autograd.Function):
 
     @staticmethod
     def backward(ctx, graddist1, gradNone1, graddist2, gradNone2):
-        B, N = d_dist1.size()
-        B, M = d_dist2.size()
+        B, N = graddist1.size()
+        B, M = graddist2.size()
         xyz1, xyz2, idx1, idx2 = ctx.saved_variables
         gradxyz1 = torch.zeros_like(xyz1)
         gradxyz2 = torch.zeros_like(xyz2)
