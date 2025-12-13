@@ -44,7 +44,7 @@ class H5Dataset(data.Dataset):
         self.__combined = True
 
     def __len__(self):
-        return 100*self.batch_size
+        return 20*self.batch_size
 
     def add_next_ratio(self):
         self.curr_scales = self.all_scales[:min(
