@@ -162,6 +162,7 @@ def train():
     # visualization
     # vis_logger = visdom.Visdom(env=FLAGS.id)
     for epoch in range(start_epoch + 1, MAX_EPOCH):
+        
         for examples in tqdm(dataloader):
             input_pc, label_pc, ratio = examples
             ratio = ratio.item()
@@ -174,19 +175,19 @@ def train():
             new_stage, new_progress = get_stage_progress(model.step)
             # advance to the next training stage with an added ratio
             if stage + 1 == new_stage:
-                dataset.add_next_ratio()
-                dataset.unset_combined()
+                # dataset.add_next_ratio()
+                # dataset.unset_combined()
                 model.chamfer_criteria.unset_threshold()
             # advance to the combined stage
-            if progress <= 0.5 and new_progress > 0.5:
-                dataset.set_combined()
+            # if progress <= 0.5 and new_progress > 0.5:
+            #     dataset.set_combined()
             # chamfer loss set ignore threshold
             if new_progress > 0.6:
                 model.chamfer_criteria.set_threshold(CD_THRESHOLD)
-            if model.step % 50 == 0:
-                output = model.predicted.transpose(2, 1)[0].cpu()
-                gt = model.gt.transpose(2, 1)[0].cpu()
-                input_pc = input_pc.transpose(2, 1)[0].cpu()
+            # if model.step % 50 == 0:
+            #     output = model.predicted.transpose(2, 1)[0].cpu()
+            #     gt = model.gt.transpose(2, 1)[0].cpu()
+            #     input_pc = input_pc.transpose(2, 1)[0].cpu()
                 # vis_logger.scatter(input_pc, win="x{}_input".format(ratio),
                 #                    opts=dict(title="x{}_input".format(ratio),
                 #                              markersize=2))
